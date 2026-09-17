@@ -87,3 +87,13 @@ pytest -q
 ## License
 
 [MIT](LICENSE)
+
+## Try it on the sample list
+
+`samples/passwords.txt` holds 14 example passwords, from the worst to the strongest:
+
+```bash
+passcheck --stdin < samples/passwords.txt          # readable report
+passcheck --stdin --json < samples/passwords.txt   # machine-readable
+passcheck --stdin --min-score 3 < samples/passwords.txt; echo "exit $?"   # 1 = some are weak
+```
