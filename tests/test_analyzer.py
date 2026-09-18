@@ -90,16 +90,17 @@ def test_piping_into_head_does_not_print_a_traceback(tmp_path):
     root = Path(__file__).resolve().parent.parent
     env = {"PATH": "/usr/bin:/bin", "PYTHONPATH": str(root / "src")}
 
-    producer = subprocess.Popen(
-        [sys.executable, "-m", 'passcheck'] + ['--stdin'],
-        cwd=root, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        stdin=open(root / "samples" / "passwords.txt", "rb"),
-    )
-    reader = subprocess.Popen(["head", "-2"], stdin=producer.stdout, stdout=subprocess.DEVNULL)
-    producer.stdout.close()
-    reader.communicate()
-    stderr = producer.stderr.read().decode()
-    producer.wait()
+    with open(root / "samples" / "passwords.txt", "rb") as passwords:
+        producer = subprocess.Popen(
+            [sys.executable, "-m", "passcheck", "--stdin"],
+            cwd=root, env=env, stdin=passwords,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        reader = subprocess.Popen(["head", "-2"], stdin=producer.stdout, stdout=subprocess.DEVNULL)
+        producer.stdout.close()
+        reader.communicate()
+        stderr = producer.stderr.read().decode()
+        producer.wait()
 
     assert "BrokenPipeError" not in stderr, stderr
     assert "Traceback" not in stderr, stderr
