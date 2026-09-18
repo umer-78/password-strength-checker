@@ -74,3 +74,32 @@ def test_cli_json_and_min_score(monkeypatch, capsys):
     out = json.loads(capsys.readouterr().out)
     assert [r["score"] for r in out] == [0, 4]
     assert code == 1
+
+
+def test_piping_into_head_does_not_print_a_traceback(tmp_path):
+    """`passcheck --stdin | head` closes the pipe early; that must end quietly.
+
+    Without the guard in cli.main, Python prints a BrokenPipeError traceback to
+    stderr the moment the reader goes away — which looks like a crash in any
+    pipeline a person actually writes.
+    """
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    env = {"PATH": "/usr/bin:/bin", "PYTHONPATH": str(root / "src")}
+
+    producer = subprocess.Popen(
+        [sys.executable, "-m", 'passcheck'] + ['--stdin'],
+        cwd=root, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        stdin=open(root / "samples" / "passwords.txt", "rb"),
+    )
+    reader = subprocess.Popen(["head", "-2"], stdin=producer.stdout, stdout=subprocess.DEVNULL)
+    producer.stdout.close()
+    reader.communicate()
+    stderr = producer.stderr.read().decode()
+    producer.wait()
+
+    assert "BrokenPipeError" not in stderr, stderr
+    assert "Traceback" not in stderr, stderr
