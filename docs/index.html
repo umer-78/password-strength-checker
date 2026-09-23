@@ -191,6 +191,72 @@
     @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes pulseBar { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.25); } }
+    .score-bar .fill.animating { animation: pulseBar 0.6s var(--ease); }
+    /* history */
+    .history-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .history-row {
+      display: grid; grid-template-columns: 28px 1fr auto auto; gap: 10px; align-items: center;
+      padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); font-size: 13px;
+      animation: slideIn 0.3s var(--ease) both;
+      transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+    .history-row:hover { transform: translateX(3px); box-shadow: var(--shadow-sm); }
+    .history-row .h-idx { font-family: var(--mono); color: var(--muted); font-size: 12px; }
+    .history-row .h-bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+    .history-row .h-bar i { display: block; height: 100%; border-radius: 99px; transition: width 0.5s var(--ease); }
+    .history-row .h-label { font-weight: 700; font-size: 12px; min-width: 74px; text-align: right; }
+    .history-row .h-bits { font-family: var(--mono); font-size: 12px; color: var(--muted); min-width: 58px; text-align: right; }
+    .history-empty { color: var(--muted); font-size: 13px; padding: 12px; text-align: center; border: 1px dashed var(--border); border-radius: 10px; margin-top: 10px; }
+    /* crack times */
+    .crack-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 10px; }
+    .crack-table th, .crack-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    .crack-table th { background: var(--surface-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .crack-table tr:last-child td { border-bottom: none; }
+    .crack-table .rate { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .crack-table .time { font-family: var(--mono); font-weight: 700; }
+    .crack-table .time.instant { color: var(--bad); }
+    .crack-table .time.weak { color: var(--warn); }
+    .crack-table .time.ok { color: var(--good); }
+    /* batch */
+    .batch-out { max-height: 320px; overflow: auto; margin-top: 12px; }
+    .batch-out table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .batch-out th, .batch-out td { padding: 9px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    .batch-out th { background: var(--surface-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); position: sticky; top: 0; }
+    .batch-out tr:hover { background: var(--surface-2); }
+    .batch-out .pw-cell { font-family: var(--mono); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .score-chip { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 800; }
+    /* generator */
+    .gen-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 10px; }
+    .gen-out {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      margin-top: 12px; padding: 14px 16px; border-radius: var(--radius);
+      background: var(--surface-2); border: 1px solid var(--border);
+    }
+    .gen-out .gen-pw { font-family: var(--mono); font-size: 16px; font-weight: 700; word-break: break-all; flex: 1 1 200px; letter-spacing: 0.04em; }
+    .gen-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-top: 8px; }
+    .gen-meta b { color: var(--accent); }
+    /* entropy classes */
+    .class-bars { margin-top: 12px; display: grid; gap: 8px; }
+    .class-bar { display: grid; grid-template-columns: 130px 1fr 70px; gap: 10px; align-items: center; font-size: 13px; }
+    .class-bar .cb-label { color: var(--text-secondary); font-weight: 600; }
+    .class-bar .cb-track { height: 16px; background: var(--surface-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--border); }
+    .class-bar .cb-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), #8b5cf6); transition: width 0.6s var(--ease); }
+    .class-bar .cb-val { font-family: var(--mono); font-weight: 700; text-align: right; color: var(--accent); font-variant-numeric: tabular-nums; }
+    /* zxcvbn feedback */
+    .fb-list { display: grid; gap: 8px; margin-top: 10px; }
+    .fb-item {
+      display: flex; gap: 10px; align-items: flex-start; padding: 11px 14px;
+      border-radius: 12px; border: 1px solid var(--border); background: var(--surface);
+      font-size: 13.5px; line-height: 1.5;
+      animation: slideIn 0.3s var(--ease) both;
+    }
+    .fb-item .fb-icon { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
+    .fb-item.good { border-color: color-mix(in srgb, var(--good) 35%, var(--border)); background: var(--good-soft); }
+    .fb-item.warn { border-color: color-mix(in srgb, var(--warn) 35%, var(--border)); background: var(--warn-soft); }
+    .fb-item.bad { border-color: color-mix(in srgb, var(--bad) 35%, var(--border)); background: var(--bad-soft); }
+    .fb-item.info { border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); background: var(--accent-soft); }
     @media (max-width: 480px) {
       header.top h1 { font-size: 19px; }
       .stat .v { font-size: 20px; }
@@ -283,6 +349,81 @@
         <p class="muted" style="margin-bottom:0">Port of <code>src/passcheck/analyzer.py</code> — same penalties, same thresholds.</p>
       </section>
     </div>
+
+    <section class="card d4">
+      <h2><span class="num">02</span> Strength history <span class="muted" style="font-weight:500;font-size:13px;text-transform:none;letter-spacing:0">(last 10 — scores only, never the passwords)</span></h2>
+      <p class="muted" style="margin-top:0">Each analysis appends a strength snapshot. The password itself is never stored — only score, entropy and length.</p>
+      <div id="historyList" class="history-list" aria-live="polite"></div>
+      <div class="history-empty" id="historyEmpty">No checks yet — analyze a password above.</div>
+      <div style="margin-top:10px"><button type="button" id="clearHistory">Clear history</button></div>
+    </section>
+
+    <section class="card d5">
+      <h2><span class="num">03</span> Crack time at multiple hash rates</h2>
+      <p class="muted" style="margin-top:0">Average time to exhaust half the keyspace (2ⁿ⁻¹ ÷ rate). Rates are realistic orders of magnitude for common scenarios.</p>
+      <div class="table-wrap" style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <table class="crack-table" id="crackTable">
+          <thead><tr><th>Scenario</th><th>Hash rate</th><th>Time to crack</th></tr></thead>
+          <tbody id="crackBody"></tbody>
+        </table>
+      </div>
+      <p class="hint">bcrypt (cost 12) ≈ 10⁴ guesses/s per high-end GPU core cluster; online throttled ≈ 100/s against a login endpoint; GPU MD5 ≈ 10¹¹/s; offline fast hash ≈ 10¹⁰/s (matches the base estimate).</p>
+    </section>
+
+    <section class="card d6">
+      <h2><span class="num">04</span> Batch mode</h2>
+      <p class="muted" style="margin-top:0">Paste one password per line — get a scored table. Useful for auditing a exported list (passwords stay in this tab).</p>
+      <label for="batchInput">Passwords (one per line)</label>
+      <textarea id="batchInput" rows="6" spellcheck="false" autocomplete="off" placeholder="password&#10;P@ssw0rd&#10;correct horse battery staple"></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="primary" type="button" id="batchRun">Analyze batch</button>
+        <button type="button" id="batchSample">Load sample list</button>
+      </div>
+      <div class="batch-out" id="batchOut" aria-live="polite"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="num">05</span> Password generator</h2>
+      <p class="muted" style="margin-top:0">Cryptographically random via <code>crypto.getRandomValues</code>. Preview updates live with length and charset choices.</p>
+      <div class="gen-controls">
+        <div>
+          <label for="genLen">Length: <b id="genLenVal" class="mono">20</b></label>
+          <input type="range" id="genLen" min="6" max="64" value="20">
+        </div>
+        <div>
+          <label style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="genLower" checked> lowercase a-z</label>
+          <label style="display:flex;align-items:center;gap:6px;margin:4px 0 0"><input type="checkbox" id="genUpper" checked> uppercase A-Z</label>
+        </div>
+        <div>
+          <label style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="genDigits" checked> digits 0-9</label>
+          <label style="display:flex;align-items:center;gap:6px;margin:4px 0 0"><input type="checkbox" id="genSymbols" checked> symbols !@#$…</label>
+        </div>
+        <div>
+          <label style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="genNoRepeat"> avoid char repeats</label>
+          <label style="display:flex;align-items:center;gap:6px;margin:4px 0 0"><input type="checkbox" id="genWords"> passphrase mode (words)</label>
+        </div>
+      </div>
+      <div class="gen-out">
+        <span class="gen-pw" id="genOut">—</span>
+        <button class="primary" type="button" id="genRun">Generate</button>
+        <button type="button" id="genCopy">Copy</button>
+        <button type="button" id="genUse">Use in checker</button>
+      </div>
+      <div class="gen-meta" id="genMeta"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="num">06</span> Entropy by character class</h2>
+      <p class="muted" style="margin-top:0">How many bits each class contributes if you add characters drawn uniformly from it. Combined pool entropy = length × log₂(sum of active class sizes).</p>
+      <div class="class-bars" id="classBars"></div>
+      <div class="result-box" id="classSummary">Check a password to see the breakdown.</div>
+    </section>
+
+    <section class="card">
+      <h2><span class="num">07</span> zxcvbn-style feedback</h2>
+      <p class="muted" style="margin-top:0">Specific, actionable suggestions ranked by impact — what an attacker would exploit first, and how to close the gap.</p>
+      <div class="fb-list" id="fbList" aria-live="polite"></div>
+    </section>
 
     <section class="card d4">
       <h2>CLI output (for comparison)</h2>
@@ -500,6 +641,338 @@
     }
 
     function run() { render(analyze($('pw').value)); }
+
+    // ============================================================
+    // ADVANCED FEATURES
+    // ============================================================
+
+    // ---- Strength history (scores only — never the password) ----
+    const HISTORY_KEY = 'passcheck_history_v1';
+    let history = [];
+    try { history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); if (!Array.isArray(history)) history = []; } catch { history = []; }
+
+    function saveHistory() {
+      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch { /* private mode */ }
+    }
+
+    function pushHistory(report) {
+      if (!report || !report.password_length) return;
+      const entry = {
+        score: report.score,
+        label: report.label,
+        entropy_bits: report.entropy_bits,
+        length: report.password_length,
+        at: Date.now()
+      };
+      // dedupe consecutive identical scores+length to avoid flooding on keystrokes
+      const last = history[0];
+      if (last && last.score === entry.score && last.length === entry.length && Date.now() - last.at < 800) return;
+      history.unshift(entry);
+      if (history.length > 10) history.length = 10;
+      saveHistory();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = $('historyList');
+      const empty = $('historyEmpty');
+      if (!history.length) {
+        list.innerHTML = '';
+        empty.hidden = false;
+        return;
+      }
+      empty.hidden = true;
+      list.innerHTML = history.map((h, i) => {
+        const pct = ((h.score + 1) / 5) * 100;
+        const color = SCORE_COLORS[h.score] || 'var(--muted)';
+        const t = new Date(h.at).toLocaleTimeString();
+        return `<div class="history-row" style="animation-delay:${i * 0.04}s">
+          <span class="h-idx">${history.length - i}</span>
+          <span class="h-bar" title="score ${h.score}/4"><i style="width:${pct}%;background:${color}"></i></span>
+          <span class="h-label" style="color:${color}">${esc(h.label)}</span>
+          <span class="h-bits">${h.entropy_bits.toFixed(1)}b · ${h.length}c</span>
+        </div>`;
+      }).join('');
+    }
+    $('clearHistory').addEventListener('click', () => { history = []; saveHistory(); renderHistory(); });
+
+    // ---- Multi-rate crack times ----
+    const HASH_RATES = [
+      { name: 'Offline bcrypt (cost 12, 8× A100 cluster)', rate: 1e5, note: 'GPU' },
+      { name: 'Offline fast hash (MD5/SHA1, 1080 Ti)', rate: 1e11, note: 'GPU' },
+      { name: 'Offline fast hash (RTX 4090)', rate: 5e11, note: 'GPU' },
+      { name: 'Offline base estimate (10¹⁰/s)', rate: 1e10, note: 'reference' },
+      { name: 'Online throttled login (100/s, no lockout)', rate: 100, note: 'network' },
+      { name: 'Online with fail2ban (1/s sustained)', rate: 1, note: 'network' }
+    ];
+
+    function crackClass(seconds) {
+      if (seconds < 1) return 'instant';
+      if (seconds < 3600 * 24) return 'weak';
+      return 'ok';
+    }
+
+    function renderCrackTimes(entropyBits) {
+      const body = $('crackBody');
+      if (!entropyBits || entropyBits <= 0) {
+        body.innerHTML = '<tr><td colspan="3" class="muted">Check a password first.</td></tr>';
+        return;
+      }
+      // average = half keyspace / rate
+      const keyspace = Math.pow(2, entropyBits);
+      body.innerHTML = HASH_RATES.map(r => {
+        const sec = (keyspace / 2) / r.rate;
+        const cls = crackClass(sec);
+        return `<tr>
+          <td>${esc(r.name)}<div class="rate">${esc(r.note)}</div></td>
+          <td class="rate">${r.rate.toExponential(0).replace('e+', '×10^')} /s</td>
+          <td class="time ${cls}">${formatDuration(sec)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ---- Batch mode ----
+    $('batchSample').addEventListener('click', () => {
+      $('batchInput').value = [
+        'password', 'P@ssw0rd', 'Karachi2024', 'qwerty123',
+        'correct horse battery staple', 'vK9#qL2!zR7@mW4$xT',
+        '123456', 'Summer2026!', 'Tr0ub4dor&3', 'aaaaaaaa'
+      ].join('\n');
+    });
+
+    $('batchRun').addEventListener('click', () => {
+      const lines = $('batchInput').value.split('\n').map(s => s.trim()).filter(Boolean);
+      const out = $('batchOut');
+      if (!lines.length) { out.innerHTML = '<p class="muted">Paste some passwords first.</p>'; return; }
+      const rows = lines.slice(0, 200).map(pw => {
+        const r = analyze(pw);
+        const color = SCORE_COLORS[r.score];
+        return `<tr>
+          <td class="pw-cell" title="${esc(pw)}">${esc(pw.length > 28 ? pw.slice(0, 28) + '…' : pw)}</td>
+          <td>${r.password_length}</td>
+          <td><span class="score-chip" style="background:${color}22;color:${color}">${r.score}/4 ${esc(r.label)}</span></td>
+          <td class="mono">${r.entropy_bits.toFixed(1)}</td>
+          <td>${esc(r.crack_time_display)}</td>
+          <td class="muted">${r.warnings.length} warning${r.warnings.length === 1 ? '' : 's'}</td>
+        </tr>`;
+      }).join('');
+      out.innerHTML = `<table>
+        <thead><tr><th>Password</th><th>Len</th><th>Score</th><th>Bits</th><th>Crack (offline 10¹⁰)</th><th>Flags</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+        <p class="hint">${lines.length > 200 ? 'Showing first 200 of ' + lines.length + '. ' : ''}${lines.length} line(s) analyzed.</p>`;
+    });
+
+    // ---- Password generator ----
+    const LOWER = 'abcdefghijklmnopqrstuvwxyz';
+    const UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const DIGITS = '0123456789';
+    const SYMBOLS = '!@#$%^&*()-_=+[]{};:,.<>?/';
+    const WORDLIST = [
+      'correct','horse','battery','staple','planet','garden','river','castle','eagle','forest',
+      'magic','winter','summer','autumn','spring','bridge','candle','diamond','engine','flame',
+      'guitar','harbor','island','jungle','kernel','lemon','marble','needle','ocean','piano',
+      'quartz','robin','silver','tunnel','velvet','walnut','yellow','zebra','amber','blaze'
+    ];
+
+    function randInt(max) {
+      const buf = new Uint32Array(1);
+      const limit = Math.floor(0x100000000 / max) * max;
+      let v;
+      do { crypto.getRandomValues(buf); v = buf[0]; } while (v >= limit);
+      return v % max;
+    }
+
+    function generatePassword() {
+      const len = +$('genLen').value;
+      const useWords = $('genWords').checked;
+      let pool = '';
+      if ($('genLower').checked) pool += LOWER;
+      if ($('genUpper').checked) pool += UPPER;
+      if ($('genDigits').checked) pool += DIGITS;
+      if ($('genSymbols').checked) pool += SYMBOLS;
+      if (!pool && !useWords) pool = LOWER + DIGITS;
+
+      if (useWords) {
+        const n = Math.max(4, Math.round(len / 5));
+        const words = [];
+        for (let i = 0; i < n; i++) words.push(WORDLIST[randInt(WORDLIST.length)]);
+        return words.join('-');
+      }
+      const noRepeat = $('genNoRepeat').checked;
+      let out = '';
+      const used = new Set();
+      for (let i = 0; i < len; i++) {
+        let c;
+        let guard = 0;
+        do {
+          c = pool[randInt(pool.length)];
+          guard++;
+        } while (noRepeat && used.has(c) && guard < 50);
+        used.add(c);
+        out += c;
+      }
+      return out;
+    }
+
+    function updateGenPreview() {
+      $('genLenVal').textContent = $('genLen').value;
+      const pw = generatePassword();
+      $('genOut').textContent = pw;
+      const r = analyze(pw);
+      const color = SCORE_COLORS[r.score];
+      $('genMeta').innerHTML = `
+        <span>length <b>${pw.length}</b></span>
+        <span>pool <b>${poolSize(pw)}</b></span>
+        <span>entropy <b style="color:${color}">${r.entropy_bits.toFixed(1)} bits</b></span>
+        <span>strength <b style="color:${color}">${esc(r.label)} (${r.score}/4)</b></span>
+        <span>offline crack <b>${esc(r.crack_time_display)}</b></span>`;
+      return { pw, r };
+    }
+
+    $('genLen').addEventListener('input', updateGenPreview);
+    ['genLower', 'genUpper', 'genDigits', 'genSymbols', 'genNoRepeat', 'genWords'].forEach(id =>
+      $(id).addEventListener('change', updateGenPreview));
+    $('genRun').addEventListener('click', updateGenPreview);
+    $('genCopy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText($('genOut').textContent); $('genCopy').textContent = 'Copied!'; setTimeout(() => $('genCopy').textContent = 'Copy', 1200); }
+      catch { /* clipboard denied */ }
+    });
+    $('genUse').addEventListener('click', () => {
+      $('pw').value = $('genOut').textContent;
+      run();
+      $('pw').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    // ---- Entropy by character class ----
+    const CLASS_DEFS = [
+      { key: 'lower', name: 'Lowercase a-z', size: 26, test: /[a-z]/ },
+      { key: 'upper', name: 'Uppercase A-Z', size: 26, test: /[A-Z]/ },
+      { key: 'digit', name: 'Digits 0-9', size: 10, test: /\d/ },
+      { key: 'symbol', name: 'ASCII symbols', size: 33, test: /[!-/:-@[-`{-~]/ },
+      { key: 'space', name: 'Space', size: 1, test: /\s/ },
+      { key: 'unicode', name: 'Non-ASCII', size: 100, test: /[^\x00-\x7F]/ }
+    ];
+
+    function renderClassBars(password) {
+      const present = password ? poolSize(password) : 0;
+      const bars = $('classBars');
+      const rows = CLASS_DEFS.map(c => {
+        const has = password ? c.test.test(password) : false;
+        const bitsPerChar = Math.log2(c.size);
+        // contribution if every char came from this class alone
+        const fullBits = password ? password.length * bitsPerChar : 0;
+        const pct = has ? Math.min(100, (bitsPerChar / Math.log2(Math.max(present || 1, 2))) * 100) : 0;
+        return `<div class="class-bar">
+          <span class="cb-label" style="${has ? 'color:var(--accent)' : 'opacity:.55'}">${esc(c.name)}${has ? ' ✓' : ''}</span>
+          <span class="cb-track"><i class="cb-fill" style="width:${has ? Math.max(6, pct) : 0}%"></i></span>
+          <span class="cb-val" style="${has ? '' : 'opacity:.4'}">${bitsPerChar.toFixed(1)} b/char</span>
+        </div>`;
+      }).join('');
+      bars.innerHTML = rows;
+
+      const active = CLASS_DEFS.filter(c => password && c.test.test(password));
+      const sum = active.reduce((s, c) => s + c.size, 0);
+      const combined = password && sum ? password.length * Math.log2(sum) : 0;
+      $('classSummary').textContent = password
+        ? `Active classes: ${active.map(c => c.name).join(', ') || 'none'}\nPool size: ${sum}\nCombined brute-force entropy: length × log₂(${sum}) = ${password.length} × ${Math.log2(sum || 1).toFixed(2)} ≈ ${combined.toFixed(1)} bits\n(Actual reported entropy after pattern penalties may be lower — see main score.)`
+        : 'Check a password to see the breakdown.';
+    }
+
+    // ---- zxcvbn-style feedback ----
+    function buildFeedback(report, password) {
+      const items = [];
+      if (!password) return items;
+
+      // severity by entropy gaps
+      if (report.score <= 1) {
+        items.push({ cls: 'bad', icon: '⛔', text: `At ${report.entropy_bits} bits this falls over in under a second against a modern GPU farm. Treat it as compromised.` });
+      } else if (report.score === 2) {
+        items.push({ cls: 'warn', icon: '⚠️', text: `Fair (${report.entropy_bits} bits) — a determined attacker with offline hashes cracks this in hours to days. Aim for 60+ bits.` });
+      } else if (report.score >= 3) {
+        items.push({ cls: 'good', icon: '✅', text: `Strong: ${report.entropy_bits} bits. Offline brute force at 10¹⁰/s averages ${formatDuration(Math.pow(2, report.entropy_bits) / 2 / 1e10)}.` });
+      }
+
+      // specific pattern feedback
+      for (const w of report.warnings) {
+        if (/common password/i.test(w)) {
+          items.push({ cls: 'bad', icon: '🔥', text: `"${w.replace(/.*'\s*|'/g, '') || w}" appears in every credential-stuffing list. Attackers try it in the first millisecond — replace the whole password.` });
+        } else if (/common word/i.test(w)) {
+          items.push({ cls: 'warn', icon: '📚', text: `Dictionary word detected: ${w} — attackers run whole wordlists (rockyou: 14M entries) before guessing characters. Insert symbols/numbers *inside* the word, not at the end.` });
+        } else if (/sequence/i.test(w)) {
+          items.push({ cls: 'warn', icon: '🔢', text: `${w} — alphabet/keyboard sequences add almost zero entropy (an attacker only needs to try a handful of ordered runs). Break the order.` });
+        } else if (/repeated pattern/i.test(w)) {
+          items.push({ cls: 'warn', icon: '🔁', text: `${w} — repeats collapse the keyspace: 'ababab' is only 2 unique chars of real entropy regardless of length.` });
+        } else if (/year or date/i.test(w)) {
+          items.push({ cls: 'warn', icon: '📅', text: `${w} — years 1900–2099 and common date formats are tried early. If you need a year, bury it between random symbols.` });
+        } else {
+          items.push({ cls: 'warn', icon: '⚠️', text: w });
+        }
+      }
+
+      // length advice
+      if (report.password_length < 12) {
+        const need = 12 - report.password_length;
+        items.push({ cls: 'info', icon: '📏', text: `Add ${need} more character${need === 1 ? '' : 's'} to reach 12. Length multiplies entropy linearly — 2 extra random chars ≈ +12 bits on a 95-char pool.` });
+      }
+      if (report.password_length >= 12 && report.password_length < 16 && report.score < 3) {
+        items.push({ cls: 'info', icon: '📏', text: `Consider 16+ characters: each additional random char adds log₂(pool) ≈ ${poolSize(password) ? Math.log2(poolSize(password)).toFixed(1) : '6.6'} bits.` });
+      }
+
+      // class advice
+      const classes = [
+        /[a-z]/.test(password), /[A-Z]/.test(password),
+        /\d/.test(password), /[!-/:-@[-`{-~]/.test(password)
+      ].filter(Boolean).length;
+      if (classes === 1 && report.password_length > 0) {
+        items.push({ cls: 'info', icon: '🎨', text: 'Only one character class in use. Adding a second class (e.g. digits) raises pool from 26 → 36, i.e. +0.46 bits per character.' });
+      } else if (classes <= 2 && report.entropy_bits < 60) {
+        items.push({ cls: 'info', icon: '🎨', text: 'Mix at least three character classes, or switch to a 5+ word passphrase — both reach 60+ bits with less friction.' });
+      }
+
+      // passphrase advice
+      if (report.entropy_bits < 60) {
+        items.push({ cls: 'info', icon: '💡', text: 'Best trade-off: a 5-word Diceware passphrase (7776-word list) = 5 × 12.9 ≈ 64.6 bits and is easier to type than 12 random symbols.' });
+      }
+
+      // positive reinforcement
+      if (report.score === 4 && report.warnings.length === 0) {
+        items.unshift({ cls: 'good', icon: '🏆', text: 'No dictionary words, sequences, repeats or dates detected — this is uniform random-looking entropy. Keep it unique per site.' });
+      }
+
+      return items.slice(0, 8);
+    }
+
+    function renderFeedback(report, password) {
+      const list = $('fbList');
+      const items = buildFeedback(report, password);
+      if (!password) { list.innerHTML = '<p class="muted" style="margin:0">Enter a password to get specific feedback.</p>'; return; }
+      list.innerHTML = items.map((it, i) =>
+        `<div class="fb-item ${it.cls}" style="animation-delay:${i * 0.05}s"><span class="fb-icon">${it.icon}</span><span>${esc(it.text)}</span></div>`
+      ).join('');
+    }
+
+    // ---- Hook into existing render/run ----
+    const _origRender = render;
+    render = function(report) {
+      _origRender(report);
+      const pw = $('pw').value;
+      pushHistory(report);
+      renderCrackTimes(report.entropy_bits);
+      renderClassBars(pw);
+      renderFeedback(report, pw);
+      // animated strength meter pulse
+      const fill = $('scoreFill');
+      fill.classList.remove('animating');
+      void fill.offsetWidth;
+      fill.classList.add('animating');
+    };
+
+    const pwInput2 = $('pw');
+    // also refresh generator preview on load
+    updateGenPreview();
+    renderHistory();
+    renderCrackTimes(0);
+    renderClassBars('');
 
     const pwInput = $('pw');
     pwInput.type = 'password';
