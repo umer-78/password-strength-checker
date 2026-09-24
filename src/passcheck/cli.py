@@ -9,6 +9,7 @@ import os
 import sys
 
 from .analyzer import analyze
+from .generate import generate_password
 
 BAR = ["#----", "##---", "###--", "####-", "#####"]
 
@@ -42,7 +43,23 @@ def _run(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--min-score", type=int, default=None, metavar="N",
                         help="exit with status 1 if any password scores below N (0-4)")
+    parser.add_argument("--generate", type=int, nargs="?", const=16, default=None, metavar="LENGTH",
+                        help="print a strong random password (default length 16) and its strength")
+    parser.add_argument("--no-symbols", action="store_true", help="with --generate: letters and digits only")
     args = parser.parse_args(argv)
+
+    if args.generate is not None:
+        try:
+            pw = generate_password(args.generate, symbols=not args.no_symbols)
+        except ValueError as exc:
+            parser.error(str(exc))
+        report = analyze(pw)
+        if args.json:
+            print(json.dumps({"password": pw, **report.to_dict()}, indent=2))
+        else:
+            print(pw)
+            print(f"Strength: [{BAR[report.score]}] {report.label}  ({report.entropy_bits} bits)", file=sys.stderr)
+        return 0
 
     if args.stdin:
         passwords = [line.rstrip("\n") for line in sys.stdin if line.strip()]

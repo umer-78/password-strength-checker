@@ -29,6 +29,7 @@ Offline crack time: instantly
 - Warnings and concrete suggestions
 - CLI never takes the password as an argument, so it stays out of shell history
 - Batch mode and `--min-score` for scripts and CI checks
+- `--generate` prints a strong random password (CSPRNG, no look-alike characters)
 - No dependencies
 
 ## Install
@@ -46,6 +47,7 @@ pip install -e ".[dev]"
 passcheck                       # prompts without echoing
 passcheck --json                # JSON report
 cat passwords.txt | passcheck --stdin --min-score 3   # exit 1 if any are weaker than "strong"
+passcheck --generate 20         # random 20-character password; strength goes to stderr
 ```
 
 ```python
@@ -73,6 +75,7 @@ regardless of its score.
 ```
 src/passcheck/analyzer.py   scoring and pattern detection
 src/passcheck/wordlist.py   built-in common-password list
+src/passcheck/generate.py   random password generator
 src/passcheck/cli.py        command-line interface
 tests/                      pytest suite
 ```
