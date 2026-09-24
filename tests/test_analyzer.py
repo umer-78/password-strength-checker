@@ -49,6 +49,10 @@ def test_pool_size():
     assert pool_size("") == 0
 
 
+def test_pool_size_unicode():
+    assert pool_size("passwörd") == 126
+
+
 def test_empty_password():
     r = analyze("")
     assert r.score == 0 and r.entropy_bits == 0
@@ -57,6 +61,13 @@ def test_empty_password():
 def test_rejects_non_string():
     with pytest.raises(TypeError):
         analyze(None)
+
+
+def test_report_to_dict():
+    d = analyze("vK9#qL2!zR7@mW4$xT").to_dict()
+    assert d["score"] == 4
+    assert d["label"] == "very strong"
+    assert d["warnings"] == []
 
 
 @pytest.mark.parametrize(
