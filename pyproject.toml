@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "passcheck"
+name = "password-strength-checker"
 version = "1.0.0"
-description = "Offline password strength analyzer: entropy, pattern detection and actionable feedback."
+description = "Offline password strength analyzer (CLI + Python library): entropy, leetspeak, keyboard walks, dates and actionable feedback."
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Umer Hashmi" }]
