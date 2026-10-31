@@ -115,3 +115,45 @@ def test_piping_into_head_does_not_print_a_traceback(tmp_path):
 
     assert "BrokenPipeError" not in stderr, stderr
     assert "Traceback" not in stderr, stderr
+
+
+@pytest.mark.parametrize("pw", ["Password123!", "!!qwerty99", "Lahore2024", "monkey!!"])
+def test_common_passwords_with_decoration_stay_weak(pw):
+    r = analyze(pw)
+    assert r.score <= 1
+    assert any("common password" in w for w in r.warnings)
+
+
+@pytest.mark.parametrize("pw", ["1ov3", "l0v3", "drowssap", "$unsh1ne", "p4ssw0rd"])
+def test_both_leet_readings_and_reversed_words_are_caught(pw):
+    assert analyze(pw).score == 0
+
+
+def test_doubled_chunks_count_as_repeats():
+    assert any("repeated" in w for w in analyze("Kq7#Kq7#").warnings)
+
+
+@pytest.mark.parametrize("pw,date", [("Ali12051998x", "12051998"), ("x1998-05-12y", "1998-05-12"), ("Zq05/12/98", "05/12/98")])
+def test_run_together_and_iso_dates_are_flagged(pw, date):
+    assert any(date in w for w in analyze(pw).warnings)
+
+
+def test_crack_times_cover_each_attack():
+    r = analyze("vK9#qL2!zR7@mW4$xT")
+    assert set(r.crack_times) == {"online_throttled", "online_unthrottled", "offline_slow_hash", "offline_fast_hash"}
+    weak = analyze("P@ssw0rd").crack_times
+    assert weak["offline_fast_hash"] == "instantly"
+    assert weak["online_throttled"] != "instantly"  # a rate limit buys real time
+    assert analyze("").crack_times["online_throttled"] == "instantly"
+
+
+def test_absurdly_long_input_is_refused():
+    with pytest.raises(ValueError):
+        analyze("a" * 5000)
+
+
+def test_report_dict_is_a_copy():
+    r = analyze("abc")
+    d = r.to_dict()
+    d["warnings"].append("x")
+    assert "x" not in r.warnings

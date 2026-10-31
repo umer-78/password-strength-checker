@@ -16,7 +16,7 @@ to fix a weak password. **Nothing is sent over the network.**
 $ passcheck
 Password (hidden):
 Strength: [#----] very weak  (5.0 bits)
-Offline crack time: instantly
+Time to guess:  9 minutes through a rate-limited login, instantly from a leaked bcrypt hash, instantly from a leaked fast hash
   ! This is one of the most common passwords.
   - Use at least 12 characters; length matters more than symbols.
   - Mix in upper-case letters, digits or symbols.
@@ -27,9 +27,14 @@ Offline crack time: instantly
 ## Features
 
 - Entropy estimate from the character pool (lower, upper, digits, symbols, Unicode)
-- Penalties for common passwords, leetspeak (`P@ssw0rd`), dictionary words,
-  keyboard walks (`qwer`), sequences (`abcd`, `4321`), repeats and years
-- Score from 0 to 4 with a label and an offline crack-time estimate
+- Penalties for common passwords, both leetspeak readings (`P@ssw0rd`, `1ov3`),
+  reversed words (`drowssap`), common passwords with digits or symbols bolted on
+  (`Password123!`), dictionary words, keyboard walks (`qwer`), sequences
+  (`abcd`, `4321`), repeats (`aaaa`, `abcabc`) and dates (`1998`, `12/05/98`,
+  `12051998`, `1998-05-12`)
+- Score from 0 to 4 with a label, and time-to-guess estimates for four attacks:
+  a rate-limited login, an unlimited login, a leaked slow hash (bcrypt) and a
+  leaked fast hash (MD5/SHA-1)
 - Warnings and concrete suggestions
 - CLI never takes the password as an argument, so it stays out of shell history
 - Batch mode and `--min-score` for scripts and CI checks
@@ -58,8 +63,12 @@ passcheck --generate 20         # random 20-character password; strength goes to
 from passcheck import analyze
 
 report = analyze("correct horse battery staple")
-print(report.score, report.label, report.crack_time_display)
+print(report.score, report.label, report.crack_times["online_throttled"])
 ```
+
+Exit codes: `0` ok, `1` a password scored below `--min-score`, `2` bad input
+(nothing entered, or a line over 1,024 characters; the line number is given,
+never the password).
 
 ## How the score works
 
@@ -69,10 +78,16 @@ print(report.score, report.label, report.crack_time_display)
    passphrase is capped at about 12.9 bits per word (a Diceware-sized word list).
 3. Map the result to a score: `<28` very weak, `<36` weak, `<60` fair,
    `<80` strong, otherwise very strong.
-4. Crack time assumes an offline attack at 10¹⁰ guesses per second.
+4. Time to guess is half the search space (the average case) at each attack's
+   rate: 100 guesses an hour for a rate-limited login, 10 a second for an
+   unlimited one, 10⁴ a second for a leaked bcrypt/scrypt hash and 10¹⁰ a second
+   for a leaked fast hash. `crack_time_display` keeps the fast-hash figure.
 
-This is an estimate, not a guarantee. A password that was leaked anywhere is weak
-regardless of its score.
+This is an estimate, not a guarantee. The common-password list is small and
+built in (no download), so it catches the most common choices, not every leaked
+password; a password that was leaked anywhere is weak regardless of its score.
+For a real breach check, use a k-anonymity service such as Have I Been Pwned's
+range API.
 
 ## Project layout
 
