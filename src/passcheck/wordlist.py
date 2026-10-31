@@ -11,4 +11,10 @@ COMMON = frozenset(
 
 KEYBOARD_ROWS = ("qwertyuiop", "asdfghjkl", "zxcvbnm", "1234567890")
 
-LEET = str.maketrans({"0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s", "!": "i"})
+# Leetspeak substitutions. Some symbols stand for more than one letter ("1" is
+# "i" in "l1ke" but "l" in "1ove"), so there are two tables and both readings
+# are checked.
+LEET = str.maketrans({"0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s", "!": "i",
+                      "8": "b", "9": "g", "+": "t", "|": "i", "2": "z", "6": "g"})
+LEET_ALT = str.maketrans({"0": "o", "1": "l", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s", "!": "l",
+                          "8": "b", "9": "g", "+": "t", "|": "l", "2": "z", "6": "b"})

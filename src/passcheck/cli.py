@@ -41,7 +41,7 @@ def _run(argv: list[str] | None = None) -> int:
         action="store_true",
         help="read one password per line from standard input (for batch checks)",
     )
-    parser.add_argument("--min-score", type=int, default=None, metavar="N",
+    parser.add_argument("--min-score", type=int, default=None, choices=range(5), metavar="N",
                         help="exit with status 1 if any password scores below N (0-4)")
     parser.add_argument("--generate", type=int, nargs="?", const=16, default=None, metavar="LENGTH",
                         help="print a strong random password (default length 16) and its strength")
@@ -62,15 +62,26 @@ def _run(argv: list[str] | None = None) -> int:
         return 0
 
     if args.stdin:
-        passwords = [line.rstrip("\n") for line in sys.stdin if line.strip()]
+        passwords = [line.rstrip("\r\n") for line in sys.stdin if line.strip()]
+        if not passwords:
+            print("passcheck: no passwords on standard input", file=sys.stderr)
+            return 2
     else:
         # never accept the password as an argument: it would end up in shell history
         passwords = [getpass.getpass("Password (hidden): ")]
+        if not passwords[0]:
+            print("passcheck: no password entered", file=sys.stderr)
+            return 2
 
     failed = False
     reports = []
-    for pw in passwords:
-        report = analyze(pw)
+    for n, pw in enumerate(passwords, 1):
+        try:
+            report = analyze(pw)
+        except ValueError as exc:
+            # say which line, never echo the password itself
+            print(f"passcheck: line {n}: {exc}", file=sys.stderr)
+            return 2
         reports.append(report)
         if args.min_score is not None and report.score < args.min_score:
             failed = True
@@ -80,7 +91,9 @@ def _run(argv: list[str] | None = None) -> int:
     else:
         for r in reports:
             print(f"Strength: [{BAR[r.score]}] {r.label}  ({r.entropy_bits} bits)")
-            print(f"Offline crack time: {r.crack_time_display}")
+            print(f"Time to guess:  {r.crack_times['online_throttled']} through a rate-limited login, "
+                  f"{r.crack_times['offline_slow_hash']} from a leaked bcrypt hash, "
+                  f"{r.crack_times['offline_fast_hash']} from a leaked fast hash")
             for w in r.warnings:
                 print(f"  ! {w}")
             for s in r.suggestions:

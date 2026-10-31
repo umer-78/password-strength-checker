@@ -388,7 +388,7 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
         <div class="stat"><div class="k">Score</div><div class="v" id="statScore">0 / 4</div></div>
         <div class="stat"><div class="k">Length</div><div class="v" id="statLen">0</div></div>
         <div class="stat"><div class="k">Pool size</div><div class="v" id="statPool">0</div></div>
-        <div class="stat"><div class="k">Offline crack time</div><div class="v" id="statCrack">instantly</div></div>
+        <div class="stat"><div class="k">Time to guess</div><div class="v" id="statCrack">instantly</div><div class="fine" id="statCrackMore" style="font-size:12px;opacity:.8;margin-top:4px">from a leaked fast hash</div></div>
       </div>
 
       <div id="findings" style="margin-top:14px" aria-live="polite"></div>
@@ -502,7 +502,7 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
       <div class="result-box" id="cliOut">$ passcheck</div>
     </section>
 
-    <footer>31 tests · Python 3.10+ · no dependencies · Built by <a href="https://github.com/umer-78">Umer Hashmi</a></footer>
+    <footer>47 tests · Python 3.10+ · no dependencies · Built by <a href="https://github.com/umer-78">Umer Hashmi</a></footer>
   </div>
 
   <script>
@@ -518,13 +518,23 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
       'love','family','money','google','facebook'
     ]);
     const KEYBOARD_ROWS = ['qwertyuiop','asdfghjkl','zxcvbnm','1234567890'];
-    const LEET = { '0':'o','1':'i','3':'e','4':'a','5':'s','7':'t','@':'a','$':'s','!':'i' };
+    // Leetspeak has two readings for some symbols ("1" is i in "l1ke", l in "1ove").
+    const LEET = { '0':'o','1':'i','3':'e','4':'a','5':'s','7':'t','@':'a','$':'s','!':'i','8':'b','9':'g','+':'t','|':'i','2':'z','6':'g' };
+    const LEET_ALT = { ...LEET, '1':'l','!':'l','|':'l','6':'b' };
     const OFFLINE_GPS = 1e10;
+    // zxcvbn's reference attack rates, in guesses per second
+    const ATTACKS = { online_throttled: 100 / 3600, online_unthrottled: 10, offline_slow_hash: 1e4, offline_fast_hash: OFFLINE_GPS };
     const LABELS = ['very weak','weak','fair','strong','very strong'];
     const BITS_PER_WORD = Math.log2(7776);
+    const MAX_LENGTH = 1024;
 
-    function unleet(s) {
-      return s.replace(/[013457@$!]/g, c => LEET[c] || c);
+    const translate = (s, table) => s.replace(/./gu, c => table[c] || c);
+    const reverse = s => [...s].reverse().join('');
+    // How an attacker reads it: as typed, both leet readings, and each reversed.
+    function readings(text) {
+      const lower = text.toLowerCase();
+      const forms = [...new Set([lower, translate(lower, LEET), translate(lower, LEET_ALT)])];
+      return [...new Set([...forms, ...forms.map(reverse)])];
     }
 
     function poolSize(pw) {
@@ -545,7 +555,7 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
       while (i < lower.length) {
         let best = 1;
         for (const src of sources) {
-          for (const direction of [src, src.split('').reverse().join('')]) {
+          for (const direction of [src, reverse(src)]) {
             const pos = direction.indexOf(lower[i]);
             if (pos < 0) continue;
             let length = 1;
@@ -560,34 +570,36 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
       return runs;
     }
 
+    // [whole run, repeated unit]: one character 3+ times, or a longer chunk twice
     function repeats(pw) {
-      const out = [];
-      const re = /(.+?)\1{2,}/g;
-      let m;
-      while ((m = re.exec(pw)) !== null) out.push(m[0]);
-      return out;
+      return [...pw.matchAll(/(.)\1{2,}|(.{2,}?)\2+/g)].map(m => [m[0], m[1] || m[2]]);
+    }
+
+    // A common password with digits or symbols added ('Password123!').
+    function decoratedCommon(pw) {
+      const m = /^([\d\W_]*)(.*?)([\d\W_]*)$/.exec(pw);
+      if (!m || !m[2] || !(m[1] || m[3])) return null;
+      return readings(m[2]).some(r => COMMON.has(r)) ? [m[2], m[1] + m[3]] : null;
     }
 
     function dictionaryHits(pw) {
-      const lower = pw.toLowerCase();
-      const un = unleet(lower);
+      const forms = readings(pw);
       const hits = new Set();
       for (const word of COMMON) {
-        if (word.length >= 4 && (lower.includes(word) || un.includes(word))) hits.add(word);
+        if (word.length >= 4 && forms.some(r => r.includes(word))) hits.add(word);
       }
-      const stripped = un.replace(/[\d\W_]+$/, '');
-      if (COMMON.has(stripped) || COMMON.has(un)) hits.add(stripped || un);
+      for (const r of forms) {
+        const stripped = r.replace(/[\d\W_]+$/, '');
+        if (COMMON.has(stripped) || COMMON.has(r)) hits.add(stripped || r);
+      }
       return [...hits].sort((a, b) => b.length - a.length);
     }
 
-    function dates(pw) {
-      const re = /(19\d{2}|20\d{2})|(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/g;
-      const out = []; let m;
-      while ((m = re.exec(pw)) !== null) out.push(m[0]);
-      return out;
-    }
+    const DATE = /(?<!\d)(?:\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}|(?:19|20)\d{2}[-/.]\d{1,2}[-/.]\d{1,2}|(?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])(?:19|20)?\d{2}|(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:19|20)?\d{2}|(?:19|20)\d{2})(?!\d)/g;
+    const dates = pw => [...pw.matchAll(DATE)].map(m => m[0]);
 
     function formatDuration(seconds) {
+      if (!Number.isFinite(seconds) || seconds >= 1e6 * 365.25 * 86400 * 100) return 'centuries';
       if (seconds < 1) return 'instantly';
       const units = [
         ['century', 100 * 365.25 * 86400], ['year', 365.25 * 86400],
@@ -605,26 +617,31 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
       return 'instantly';
     }
 
-    function analyze(password) {
+    function analyze(input) {
+      const password = String(input).slice(0, MAX_LENGTH);
       const length = password.length;
       const pool = poolSize(password);
       let entropy = pool ? length * Math.log2(pool) : 0;
       const warnings = [];
       const suggestions = [];
 
-      const lower = password.toLowerCase();
-      const wholeCommon = COMMON.has(lower) || COMMON.has(unleet(lower));
+      const wholeCommon = readings(password).some(r => COMMON.has(r));
+      const decorated = wholeCommon ? null : decoratedCommon(password);
       if (wholeCommon) {
         warnings.push('This is one of the most common passwords.');
         entropy = Math.min(entropy, 5.0);
+      } else if (decorated) {
+        warnings.push(`This is the common password '${decorated[0]}' with characters added; that is among the first things attackers try.`);
+        entropy = Math.min(entropy, Math.log2(COMMON.size) + decorated[1].length * Math.log2(poolSize(decorated[1]) || 1) / 2 + 2);
       }
+      const capped = wholeCommon || !!decorated;
 
       const words = password.split(/\s+/).filter(Boolean);
       if (words.length >= 2 && words.every(w => /^[a-zA-Z]+$/.test(w))) {
         entropy = Math.min(entropy, words.length * BITS_PER_WORD);
       }
 
-      if (!wholeCommon) {
+      if (!capped) {
         for (const word of dictionaryHits(password)) {
           warnings.push(`Contains the common word '${word}'.`);
           entropy -= Math.max(0, word.length * Math.log2(pool || 1) - Math.log2(COMMON.size));
@@ -632,15 +649,15 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
       }
       for (const run of sequenceRuns(password)) {
         warnings.push(`Contains the sequence '${run}'.`);
-        entropy -= Math.max(0, (run.length - 1) * Math.log2(pool || 1) - 3);
+        if (!capped) entropy -= Math.max(0, (run.length - 1) * Math.log2(pool || 1) - 3);
       }
-      for (const rep of repeats(password)) {
+      for (const [rep, unit] of repeats(password)) {
         warnings.push(`Contains the repeated pattern '${rep}'.`);
-        entropy -= Math.max(0, (rep.length - 2) * Math.log2(pool || 1));
+        if (!capped) entropy -= Math.max(0, (rep.length - unit.length) * Math.log2(pool || 1) - Math.log2(Math.floor(rep.length / unit.length)));
       }
       for (const date of dates(password)) {
         warnings.push(`Contains what looks like a year or date ('${date}').`);
-        entropy -= Math.max(0, date.length * Math.log2(pool || 1) - 15);
+        if (!capped) entropy -= Math.max(0, date.length * Math.log2(pool || 1) - 15);
       }
       entropy = Math.max(0, entropy);
 
@@ -656,13 +673,16 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
       else if (entropy < 80) score = 3;
       else score = 4;
 
-      const seconds = Math.pow(2, entropy) / 2 / OFFLINE_GPS;
+      // on average an attacker finds it halfway through the search
+      const guesses = length ? Math.pow(2, entropy) / 2 : 0;
+      const crack_times = Object.fromEntries(Object.entries(ATTACKS).map(([k, rate]) => [k, formatDuration(guesses / rate)]));
       return {
         password_length: length,
         entropy_bits: Math.round(entropy * 10) / 10,
         score,
         label: LABELS[score],
-        crack_time_display: formatDuration(seconds),
+        crack_time_display: crack_times.offline_fast_hash,
+        crack_times,
         warnings: [...new Set(warnings)],
         suggestions
       };
@@ -683,6 +703,9 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
       $('statLen').textContent = report.password_length;
       $('statPool').textContent = poolSize($('pw').value);
       $('statCrack').textContent = report.crack_time_display;
+      $('statCrackMore').textContent = report.password_length
+        ? `from a leaked fast hash · ${report.crack_times.offline_slow_hash} from a leaked bcrypt hash · ${report.crack_times.online_throttled} through a rate-limited login`
+        : 'from a leaked fast hash';
 
       const f = $('findings');
       if (report.warnings.length === 0 && report.password_length > 0) {
@@ -705,7 +728,7 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
 
       const masked = report.password_length ? '•'.repeat(Math.min(report.password_length, 24)) : '';
       $('cliOut').textContent = report.password_length
-        ? `$ passcheck\nPassword (hidden): ${masked}\nStrength: [${'#'.repeat(report.score + 1)}${'-'.repeat(4 - report.score)}] ${report.label}  (${report.entropy_bits.toFixed(1)} bits)\nOffline crack time: ${report.crack_time_display}` +
+        ? `$ passcheck\nPassword (hidden): ${masked}\nStrength: [${'#'.repeat(report.score + 1)}${'-'.repeat(4 - report.score)}] ${report.label}  (${report.entropy_bits.toFixed(1)} bits)\nTime to guess:  ${report.crack_times.online_throttled} through a rate-limited login, ${report.crack_times.offline_slow_hash} from a leaked bcrypt hash, ${report.crack_time_display} from a leaked fast hash` +
           report.warnings.map(w => `\n  ! ${w}`).join('') +
           report.suggestions.map(s => `\n  - ${s}`).join('')
         : '$ passcheck';
