@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-scene="security" data-fx-compact="">
+<html lang="en" data-scene="entropy" data-fx-compact="" data-look="atkinson" data-hero="center" data-card="raised" data-motif="noise" data-backdrop="grid">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,8 +10,8 @@
   <meta property="og:url" content="https://umer-78.github.io/password-strength-checker/">
   <meta name="twitter:card" content="summary">
   <meta name="description" content="Password strength checker: entropy estimate, pattern detection and crack-time numbers, fully offline in your browser.">
-  <meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#935cc3" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#120d17" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%232563eb'/><stop offset='1' stop-color='%237c3aed'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'>P</text></svg>">
   <style>
     :root {
@@ -312,7 +312,7 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
 <script>(function(){try{if(!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){var r=document.documentElement;r.classList.add('mk-pre');setTimeout(function(){r.classList.remove('mk-pre')},2200)}}catch(e){}})();</script>
 <!-- /motion-kit:head -->
 <!-- fx:v2 -->
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" id="fx-fonts">
 <link rel="stylesheet" href="fx.css">
 <style>:root { --fx-2: #06b6d4; --fx-3: #f59e0b; }</style>
 <!-- /fx:v2 -->
@@ -326,6 +326,11 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
 <meta property="og:image:alt" content="passcheck — Password Strength Checker Demo: the live demo">
 <meta name="twitter:card" content="summary_large_image">
 <!-- /og -->
+<style id="fx-look">:root[data-look] { --font: 'Atkinson Hyperlegible', system-ui, -apple-system, "Segoe UI", sans-serif; --fx-display: 'Atkinson Hyperlegible', system-ui, sans-serif; --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --fx-display-weight: 700; --fx-tracking: -0.015em; --fx-title-case: none; --fx-radius: 6px; --fx-hero-radius: 16px; --fx-control-radius: 4px; --accent: #935cc3; --accent-hover: #8149b0; --accent-soft: #f6eeff; --accent-glow: rgb(147 92 195 / 0.16); --on-accent: #ffffff; --fx-2: #319f47; --fx-3: #e6811b; --bg: #fbf7ff; --bg-elevated: #fefdff; --surface: #fefeff; --surface-2: #f6f1fb; --surface-3: #eee9f4; --border: #e1dbe8; --border-strong: #c7c1cf; --line: #e1dbe8; }
+@media (prefers-color-scheme: dark) { :root[data-look]:not([data-theme="light"]) { --accent: #ba85eb; --accent-hover: #cb9cf8; --accent-soft: rgb(186 133 235 / 0.14); --accent-glow: rgb(186 133 235 / 0.2); --on-accent: #150e1c; --fx-2: #70c97b; --fx-3: #fda763; --bg: #120d17; --bg-elevated: #19131e; --surface: #1c1722; --surface-2: #251f2b; --surface-3: #2e2835; --border: #332e38; --border-strong: #45404b; --line: #332e38; } }
+:root[data-look][data-theme="dark"] { --accent: #ba85eb; --accent-hover: #cb9cf8; --accent-soft: rgb(186 133 235 / 0.14); --accent-glow: rgb(186 133 235 / 0.2); --on-accent: #150e1c; --fx-2: #70c97b; --fx-3: #fda763; --bg: #120d17; --bg-elevated: #19131e; --surface: #1c1722; --surface-2: #251f2b; --surface-3: #2e2835; --border: #332e38; --border-strong: #45404b; --line: #332e38; }</style>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js" data-fx>
+<link rel="modulepreload" href="fx3d.js" data-fx>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
